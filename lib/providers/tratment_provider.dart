@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:medical_reminder/external/local_notification_framework.dart';
 
 class TratmentProvider extends ChangeNotifier {
   Map<String, MedicalCard> map = {};
@@ -21,6 +22,7 @@ class TratmentProvider extends ChangeNotifier {
       finishTime: finishTime,
     );
     map[medicalCard.id] = medicalCard;
+    medicalCard.schedule();
     notifyListeners();
   }
 
@@ -38,6 +40,7 @@ class MedicalCard {
   final int startHour;
   final DateTime startDay;
   var takes = [];
+  final NotificationManager notificationManager;
 
   MedicalCard(
       {required this.title,
@@ -46,7 +49,8 @@ class MedicalCard {
       String? id})
       : id = id ?? const Uuid().v4(),
         startDay = DateTime.now(),
-        startHour = DateTime.now().hour;
+        startHour = DateTime.now().hour,
+        notificationManager = NotificationManager(name: title);
 
   Set getHours() {
     var hours = [];
@@ -59,13 +63,13 @@ class MedicalCard {
   void schedule() {
     final take = [];
 
-    final int numberOfTakePills = ((finishTime * 24) / hourInterval) as int;
+    final int numberOfTakePills = ((finishTime * 24) / hourInterval).ceil();
     var current = startDay;
     for (var i = 0; i < numberOfTakePills; i++) {
+      notificationManager.scheduleNotification("$title-$current" ,'Lembrete de medicamento', "Hora de tomar o medicamento $title", current);
       take.add(current);
       current = current.add(Duration(hours: hourInterval));
     }
-
     takes = take;
   }
 
@@ -84,11 +88,12 @@ class MedicalCard {
     }
 
     final indexOfMinDifference = diferences.indexOf(minDiference);
-
+    final currentTakeHour = takes[indexOfMinDifference];
     takes.removeAt(indexOfMinDifference);
+    notificationManager.cancelNotification("$title-$currentTakeHour");
   }
 
-  showTakePill() { // TODO ver como posso refatorar essa e a de cima
+  showTakePill() {
     final now = DateTime.now();
 
     final diferences = takes.map((takeHour) {

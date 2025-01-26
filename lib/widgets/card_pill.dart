@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CardPill extends StatelessWidget {
-  
+  final String title;
+  final Function onPressed;
 
-  const CardPill({super.key});
+  const CardPill({
+    super.key,
+    required this.title,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -11,9 +16,8 @@ class CardPill extends StatelessWidget {
       margin: const EdgeInsets.all(10),
       child: Column(
         children: [
-          const ListTile(
-            title: Text('Medicamento'),
-            subtitle: Text('Descrição'),
+          ListTile(
+            title: Text(title),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -21,7 +25,7 @@ class CardPill extends StatelessWidget {
                 style: TextButton.styleFrom(
                   backgroundColor: Colors.transparent, // Cor de fundo transparente
                 ),
-                onPressed: () {},
+                onPressed: () => onPressed(),
                 label: const Text('Tomar'),
                 icon: const Icon(Icons.medication),
               ),],

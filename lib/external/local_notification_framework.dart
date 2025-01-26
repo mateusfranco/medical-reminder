@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/standalone.dart' as tz;
 
-Future<void> initiateLocalNotifications() async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
+Future<void> initiateLocalNotifications() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -19,14 +19,10 @@ Future<void> initiateLocalNotifications() async {
     iOS: initializationSettingsIOS,
   );
 
-  
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 }
 
 void showNotification() async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
   const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
     'channel_id',
     'channel_name',
@@ -47,10 +43,8 @@ void showNotification() async {
   );
 }
 
-void scheduleNotification() async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
+Future<int> scheduleNotificationAuxiliary(
+    String title, String description, DateTime scheduleHourNotification) async {
   const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
     'channel_id',
     'channel_name',
@@ -63,22 +57,24 @@ void scheduleNotification() async {
     android: androidDetails,
   );
 
-  final tz.TZDateTime scheduledDate =
-      tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')).add(const Duration(seconds: 10));
+  final tz.TZDateTime scheduledDate = tz.TZDateTime.from(
+      scheduleHourNotification, tz.getLocation('America/Sao_Paulo'));
+
+  final id = DateTime.now().millisecondsSinceEpoch;
 
   await flutterLocalNotificationsPlugin.zonedSchedule(
-    123, // ID único da notificação
-    'teste',
-    'notificação agendada',
-    // Agendar para daqui a 5 segundos
-    scheduledDate, // Agendar para daqui a 5 segundos
+    id, // ID único da notificação
+    title,
+    description,
+    scheduledDate,
     notificationDetails,
     uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
-    androidScheduleMode: AndroidScheduleMode.exact,
+    androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
   );
 
   scheduledNotifications[0] = scheduledDate;
+  return id;
 }
 
 Map<int, tz.TZDateTime> scheduledNotifications = {};
@@ -91,12 +87,50 @@ Future<void> showPendingNotifications() async {
       await flutterLocalNotificationsPlugin.pendingNotificationRequests();
 
   for (var pendingNotification in pendingNotificationRequests) {
-    final tz.TZDateTime? scheduledDate = scheduledNotifications[pendingNotification.id];
+    final tz.TZDateTime? scheduledDate =
+        scheduledNotifications[pendingNotification.id];
     if (scheduledDate != null) {
-      final Duration timeRemaining = scheduledDate.difference(tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')));
-      print('ID: ${pendingNotification.id}, Title: ${pendingNotification.title}, Body: ${pendingNotification.body}, Time Remaining: ${timeRemaining.inSeconds} seconds');
+      final Duration timeRemaining = scheduledDate
+          .difference(tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')));
+      print(
+          'ID: ${pendingNotification.id}, Title: ${pendingNotification.title}, Body: ${pendingNotification.body}, Time Remaining: ${timeRemaining.inSeconds} seconds');
     } else {
-      print('ID: ${pendingNotification.id}, Title: ${pendingNotification.title}, Body: ${pendingNotification.body}, Scheduled Date: Not Found');
+      print(
+          'ID: ${pendingNotification.id}, Title: ${pendingNotification.title}, Body: ${pendingNotification.body}, Scheduled Date: Not Found');
+    }
+  }
+}
+
+class NotificationManager {
+  final String name;
+  final Map<String, int> notifications;
+
+  NotificationManager({required this.name, this.notifications = const {}});
+
+  getScheduledNotification(String key) {
+    return notifications[key];
+  }
+
+  void cancelNotification(String key) {
+    final notificationId = notifications[key];
+    if (notificationId != null) {
+      flutterLocalNotificationsPlugin.cancel(notificationId);
+    } else {
+      throw Exception('Notification not found');
+    }
+  }
+
+  void scheduleNotification(String key, String title, String description,
+      DateTime scheduleHourNotification) async {
+    final notificationId = await scheduleNotificationAuxiliary(
+        title, description, scheduleHourNotification);
+    notifications[key] = notificationId;
+  }
+
+  void printNotificationManager() {
+    print('Notification Manager: $name');
+    for (var key in notifications.keys) {
+      print('Key: $key, Notification ID: ${notifications[key]}');
     }
   }
 }

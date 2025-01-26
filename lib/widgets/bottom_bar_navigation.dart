@@ -36,7 +36,7 @@ class _BottomNavState extends State<BottomNav> {
           child: _widgetOptions.elementAt(_selectedIndex),
         ),
         bottomNavigationBar: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
               border: Border(
             top: BorderSide(color: Colors.black, width: 2.0),
           )),

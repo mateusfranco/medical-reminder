@@ -16,34 +16,37 @@ class CardTratment extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
       color: Colors.yellow[200],
       child: Container(
         width: double.infinity,
-        margin: EdgeInsets.all(16),
-        padding: EdgeInsets.all(10),
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(10),
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                TextButton.icon(onPressed: () {}, icon: const Icon(Icons.remove_circle), label: const Text('Remover')),
               ],
             ),
             Row(
               children: [
-                Text('Hora de tomar o medicamento: '),
-                Text(time.toString() + ' horas'),
+                const Text('Hora de tomar o medicamento: '),
+                Text('$time horas'),
               ],
             ),
             Container(
-              margin: EdgeInsets.only(top: 20),
+              margin: const EdgeInsets.only(top: 20),
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Tempo restante do tratamento: '),
-                  Text(remaining.toString() + ' dias'),
+                  Text('Tempo restante do tratamento: $remaining dias'),
                 ],
               ),
-            )
+            ),
+            
           ],
         ),
       ),

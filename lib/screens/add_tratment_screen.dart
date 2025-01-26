@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:medical_reminder/external/local_notification_framework.dart';
 import 'package:provider/provider.dart';
 import 'package:medical_reminder/providers/tratment_provider.dart';
 
@@ -25,26 +24,26 @@ class AddTratmentScreen extends StatelessWidget {
             children: [
               TextField(
                 controller: nameController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nome do tratamento',
                 ),
               ),
               TextField(
                 controller: durationController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Duração do tratamento em dias',
                 ),
                 keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: intervalController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Intervalo em horas',
                 ),
                 keyboardType: TextInputType.number,
               ),
               Padding(
-                padding: EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.only(top: 16),
                 child: ElevatedButton(
                   onPressed: () {
                     final String name = nameController.text;
@@ -54,10 +53,10 @@ class AddTratmentScreen extends StatelessWidget {
                         int.tryParse(intervalController.text) ?? 0;
 
                     tratmentProvider.add(name, duration, interval);
-                    scheduleNotification();
+                    
                     Navigator.of(context).pop();
                   },
-                  child: Text('Adicionar'),
+                  child: const Text('Adicionar'),
                 ),
               ),
             ],
