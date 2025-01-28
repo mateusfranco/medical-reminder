@@ -1,9 +1,12 @@
+import 'dart:math';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/standalone.dart' as tz;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+Map<int, tz.TZDateTime> scheduledNotifications = {};
 
 Future<void> initiateLocalNotifications() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +56,13 @@ Future<int> scheduleNotificationAuxiliary(
     priority: Priority.max,
   );
 
+  if (await Permission.scheduleExactAlarm.request().isGranted) {
+    print('Permission granted');
+  } else {
+    print('Permission denied');
+    return(-1);
+  }
+
   const NotificationDetails notificationDetails = NotificationDetails(
     android: androidDetails,
   );
@@ -60,7 +70,9 @@ Future<int> scheduleNotificationAuxiliary(
   final tz.TZDateTime scheduledDate = tz.TZDateTime.from(
       scheduleHourNotification, tz.getLocation('America/Sao_Paulo'));
 
-  final id = DateTime.now().millisecondsSinceEpoch;
+  final Random random = Random();
+  final int id = random.nextInt(1 <<
+      31); // ultimo frufru só garante que sera no maximo o tamanho de um inteiro;
 
   await flutterLocalNotificationsPlugin.zonedSchedule(
     id, // ID único da notificação
@@ -70,25 +82,18 @@ Future<int> scheduleNotificationAuxiliary(
     notificationDetails,
     uiLocalNotificationDateInterpretation:
         UILocalNotificationDateInterpretation.absoluteTime,
-    androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
   );
 
-  scheduledNotifications[0] = scheduledDate;
+  scheduledNotifications[id] = scheduledDate;
   return id;
 }
 
-Map<int, tz.TZDateTime> scheduledNotifications = {};
-
 Future<void> showPendingNotifications() async {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-
   final List<PendingNotificationRequest> pendingNotificationRequests =
       await flutterLocalNotificationsPlugin.pendingNotificationRequests();
-
   for (var pendingNotification in pendingNotificationRequests) {
-    final tz.TZDateTime? scheduledDate =
-        scheduledNotifications[pendingNotification.id];
+    final scheduledDate = scheduledNotifications[pendingNotification.id];
     if (scheduledDate != null) {
       final Duration timeRemaining = scheduledDate
           .difference(tz.TZDateTime.now(tz.getLocation('America/Sao_Paulo')));
@@ -101,11 +106,16 @@ Future<void> showPendingNotifications() async {
   }
 }
 
+Future<void> cancelAllNotifications() async {
+  await flutterLocalNotificationsPlugin.cancelAll();
+}
+
 class NotificationManager {
   final String name;
   final Map<String, int> notifications;
 
-  NotificationManager({required this.name, this.notifications = const {}});
+  NotificationManager({required this.name, Map<String, int>? notifications})
+      : notifications = notifications ?? {};
 
   getScheduledNotification(String key) {
     return notifications[key];

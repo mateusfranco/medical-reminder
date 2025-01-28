@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:medical_reminder/providers/tratment_provider.dart';
+import 'package:provider/provider.dart';
 
-class CardTratment extends StatelessWidget{
+class CardTratment extends StatelessWidget {
   final dynamic remaining;
   final dynamic title;
   final dynamic time;
+  final String id;
 
   const CardTratment({
     super.key,
     this.title,
     this.time,
     this.remaining,
+    required this.id,
   });
 
-  
   @override
   Widget build(BuildContext context) {
+    final tratmentProvider = context.watch<TratmentProvider>();
+
     return Card(
       margin: const EdgeInsets.all(20),
       color: Colors.yellow[200],
@@ -27,8 +32,17 @@ class CardTratment extends StatelessWidget{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                TextButton.icon(onPressed: () {}, icon: const Icon(Icons.remove_circle), label: const Text('Remover')),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                TextButton.icon(
+                    onPressed: () {
+                      tratmentProvider.remove(id);
+                    },
+                    icon: const Icon(Icons.remove_circle),
+                    label: const Text('Remover')),
               ],
             ),
             Row(
@@ -46,12 +60,9 @@ class CardTratment extends StatelessWidget{
                 ],
               ),
             ),
-            
           ],
         ),
       ),
     );
-    
   }
-  
 }

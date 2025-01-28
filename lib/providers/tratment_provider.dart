@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:medical_reminder/external/local_notification_framework.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class TratmentProvider extends ChangeNotifier {
   Map<String, MedicalCard> map = {};
@@ -27,6 +28,7 @@ class TratmentProvider extends ChangeNotifier {
   }
 
   void remove(String title) {
+    map[title]?.removeTratment();
     map.remove(title);
     notifyListeners();
   }
@@ -39,7 +41,7 @@ class MedicalCard {
   final int finishTime;
   final int startHour;
   final DateTime startDay;
-  var takes = [];
+  final List<DateTime> takes = [];
   final NotificationManager notificationManager;
 
   MedicalCard(
@@ -61,39 +63,60 @@ class MedicalCard {
   }
 
   void schedule() {
-    final take = [];
-
     final int numberOfTakePills = ((finishTime * 24) / hourInterval).ceil();
     var current = startDay;
     for (var i = 0; i < numberOfTakePills; i++) {
-      notificationManager.scheduleNotification("$title-$current" ,'Lembrete de medicamento', "Hora de tomar o medicamento $title", current);
-      take.add(current);
-      current = current.add(Duration(hours: hourInterval));
+      if (i != 0) {
+        notificationManager.scheduleNotification(
+            "$title-$current",
+            'Lembrete de medicamento',
+            "Hora de tomar o medicamento $title",
+            current);
+        takes.add(current);
+        current = current.add(Duration(hours: hourInterval));
+      } else {
+        current = current.add(Duration(hours: hourInterval));
+      }
     }
-    takes = take;
   }
 
   void takePill() {
-    final now = DateTime.now();
+    try {
+      final now = DateTime.now();
 
-    final diferences = takes.map((takeHour) {
-      return now.difference(takeHour);
-    }).toList();
+      final diferences = takes.map((takeHour) {
+        return now.difference(takeHour);
+      }).toList();
 
-    var minDiference = diferences[0];
-    for (var diference in diferences) {
-      if (minDiference.inSeconds > diference.inSeconds) {
-        minDiference = diference;
+      var minDiference = diferences[0];
+      for (var diference in diferences) {
+        if (minDiference.inSeconds < diference.inSeconds) {
+          minDiference = diference;
+        }
       }
-    }
 
-    final indexOfMinDifference = diferences.indexOf(minDiference);
-    final currentTakeHour = takes[indexOfMinDifference];
-    takes.removeAt(indexOfMinDifference);
-    notificationManager.cancelNotification("$title-$currentTakeHour");
+      if (minDiference.inSeconds.abs() > 3600) {
+        throw Exception("Não é hora de tomar o medicamento");
+      }
+
+      final indexOfMinDifference = diferences.indexOf(minDiference);
+      final currentTakeHour = takes[indexOfMinDifference];
+      takes.removeAt(indexOfMinDifference);
+      notificationManager.cancelNotification("$title-$currentTakeHour");
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString().split(':')[1],
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
   }
 
-  showTakePill() {
+  DateTime showTakePill() {
     final now = DateTime.now();
 
     final diferences = takes.map((takeHour) {
@@ -102,7 +125,7 @@ class MedicalCard {
 
     var minDiference = diferences[0];
     for (var diference in diferences) {
-      if (minDiference.inSeconds > diference.inSeconds) {
+      if (minDiference.inSeconds < diference.inSeconds) {
         minDiference = diference;
       }
     }
@@ -110,5 +133,26 @@ class MedicalCard {
     final indexOfMinDifference = diferences.indexOf(minDiference);
 
     return takes[indexOfMinDifference];
+  }
+
+  List<DateTime> getTodayTakes() {
+    final now = DateTime.now();
+    final List<DateTime> todayTratments = [];
+
+    for (var take in takes) {
+      if (take.day == now.day &&
+          take.month == now.month &&
+          take.year == now.year) {
+        todayTratments.add(take);
+      }
+    }
+
+    return todayTratments;
+  }
+
+  void removeTratment() {
+    for (var take in takes) {
+      notificationManager.cancelNotification("$title-$take");
+    }
   }
 }

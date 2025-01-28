@@ -42,6 +42,7 @@ class TratmentScreen extends StatelessWidget {
           for (var tratment in tratmentProvider.tratments)
             CardTratment(
               key: Key(tratment.id.toString()),
+              id: tratment.id,
               remaining: tratment.finishTime -
                   tratment.startDay.difference(DateTime.now()).inDays,
               time: getHours(tratment.getHours()),

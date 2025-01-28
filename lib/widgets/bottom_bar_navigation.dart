@@ -38,27 +38,27 @@ class _BottomNavState extends State<BottomNav> {
         bottomNavigationBar: Container(
           decoration: const BoxDecoration(
               border: Border(
-            top: BorderSide(color: Colors.black, width: 2.0),
+            top: BorderSide(color: Color.fromARGB(97, 103, 15, 185), width: 2.0),
           )),
           child: BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: Icon(
                   _selectedIndex == 0 ? Icons.home : Icons.home_outlined,
-                  color: Colors.black,
+                  color: const Color.fromARGB(97, 103, 15, 185),
                 ),
                 label: 'Hoje',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
                   _selectedIndex == 0 ? Icons.medication : Icons.medication_outlined,
-                  color: Colors.black,
+                  color: const Color.fromARGB(97, 103, 15, 185),
                 ),
                 label: 'Tratamentos',
               ),
             ],
             currentIndex: _selectedIndex,
-            selectedItemColor: const Color.fromARGB(255, 255, 8, 0),
+            selectedItemColor: const Color.fromARGB(255, 81, 0, 100),
             onTap: _onItemTapped,
           ),
         ));

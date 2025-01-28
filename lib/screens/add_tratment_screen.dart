@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:medical_reminder/providers/tratment_provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AddTratmentScreen extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
@@ -47,10 +48,34 @@ class AddTratmentScreen extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     final String name = nameController.text;
-                    final int duration =
-                        int.tryParse(durationController.text) ?? 0;
-                    final int interval =
-                        int.tryParse(intervalController.text) ?? 0;
+                    final int? duration = int.tryParse(durationController.text);
+                    final int? interval = int.tryParse(intervalController.text);
+
+                    if (duration == null || duration <= 0) {
+                      Fluttertoast.showToast(
+                        msg: "A duração deve ser um número inteiro positivo maior que 0.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                      return;
+                    }
+
+                    if (interval == null || interval <= 0) {
+                      Fluttertoast.showToast(
+                        msg: "O intervalo deve ser um número inteiro positivo maior que 0.",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 16.0,
+                      );
+                      return;
+                    }
 
                     tratmentProvider.add(name, duration, interval);
                     
