@@ -14,19 +14,6 @@ class TratmentScreen extends StatelessWidget {
 
     showPendingNotifications();
 
-    int getHours(Set hours) {
-      var now = DateTime.now();
-      var hour = now.hour;
-      int indexHour = 0;
-      while (hour < hours.elementAt(indexHour)) {
-        indexHour++;
-      }
-      if (now.hour > hours.elementAt(indexHour) + 1) {
-        return hours.elementAt((indexHour + 1) % hours.length);
-      }
-      return hours.elementAt(indexHour % hours.length);
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tratamentos'),
@@ -45,7 +32,6 @@ class TratmentScreen extends StatelessWidget {
               id: tratment.id,
               remaining: tratment.finishTime -
                   tratment.startDay.difference(DateTime.now()).inDays,
-              time: getHours(tratment.getHours()),
               title: tratment.title,
             ),
         ],

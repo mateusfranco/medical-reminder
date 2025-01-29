@@ -5,13 +5,11 @@ import 'package:provider/provider.dart';
 class CardTratment extends StatelessWidget {
   final dynamic remaining;
   final dynamic title;
-  final dynamic time;
   final String id;
 
   const CardTratment({
     super.key,
     this.title,
-    this.time,
     this.remaining,
     required this.id,
   });
@@ -43,12 +41,6 @@ class CardTratment extends StatelessWidget {
                     },
                     icon: const Icon(Icons.remove_circle),
                     label: const Text('Remover')),
-              ],
-            ),
-            Row(
-              children: [
-                const Text('Hora de tomar o medicamento: '),
-                Text('$time horas'),
               ],
             ),
             Container(

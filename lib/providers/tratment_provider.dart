@@ -54,14 +54,6 @@ class MedicalCard {
         startHour = DateTime.now().hour,
         notificationManager = NotificationManager(name: title);
 
-  Set getHours() {
-    var hours = [];
-    for (var i = 0; i * hourInterval < finishTime * 24; i++) {
-      hours.add((startHour + (i * hourInterval)) % 24);
-    }
-    return hours.toSet();
-  }
-
   void schedule() {
     final int numberOfTakePills = ((finishTime * 24) / hourInterval).ceil();
     var current = startDay;
@@ -114,25 +106,6 @@ class MedicalCard {
         fontSize: 16.0,
       );
     }
-  }
-
-  DateTime showTakePill() {
-    final now = DateTime.now();
-
-    final diferences = takes.map((takeHour) {
-      return now.difference(takeHour);
-    }).toList();
-
-    var minDiference = diferences[0];
-    for (var diference in diferences) {
-      if (minDiference.inSeconds < diference.inSeconds) {
-        minDiference = diference;
-      }
-    }
-
-    final indexOfMinDifference = diferences.indexOf(minDiference);
-
-    return takes[indexOfMinDifference];
   }
 
   List<DateTime> getTodayTakes() {
