@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:medical_reminder/providers/tratment_provider.dart';
 import 'package:medical_reminder/widgets/card_pill.dart';
 import 'package:medical_reminder/widgets/card_pills_today.dart';
 import 'package:provider/provider.dart';
 
-class TodayScreen extends StatelessWidget {
+class TodayScreen extends StatefulWidget {
   const TodayScreen({super.key});
 
+  @override
+  _TodayScreenState createState() => _TodayScreenState();
+}
+
+class _TodayScreenState extends State<TodayScreen> {
   @override
   Widget build(BuildContext context) {
     final tratmentProvider = context.watch<TratmentProvider>();
@@ -17,7 +21,9 @@ class TodayScreen extends StatelessWidget {
         .expand((pill) => pill.getTodayTakes().map((take) {
               var cardPill = CardPill(
                 onPressed: () {
-                  pill.takePill();
+                  setState(() {
+                    pill.takePill();
+                  });
                 },
                 title: pill.title,
                 day: take,

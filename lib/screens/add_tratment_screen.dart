@@ -53,7 +53,8 @@ class AddTratmentScreen extends StatelessWidget {
 
                     if (duration == null || duration <= 0) {
                       Fluttertoast.showToast(
-                        msg: "A duração deve ser um número inteiro positivo maior que 0.",
+                        msg:
+                            "A duração deve ser um número inteiro positivo maior que 0.",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 1,
@@ -66,7 +67,8 @@ class AddTratmentScreen extends StatelessWidget {
 
                     if (interval == null || interval <= 0) {
                       Fluttertoast.showToast(
-                        msg: "O intervalo deve ser um número inteiro positivo maior que 0.",
+                        msg:
+                            "O intervalo deve ser um número inteiro positivo maior que 0.",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 1,
@@ -77,8 +79,9 @@ class AddTratmentScreen extends StatelessWidget {
                       return;
                     }
 
-                    tratmentProvider.add(name, duration, interval);
                     
+                    tratmentProvider.add(name, duration, interval);
+
                     Navigator.of(context).pop();
                   },
                   child: const Text('Adicionar'),

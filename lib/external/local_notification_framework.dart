@@ -110,6 +110,17 @@ Future<void> cancelAllNotifications() async {
   await flutterLocalNotificationsPlugin.cancelAll();
 }
 
+
+Future<void> requestNotificationPermission() async {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.requestNotificationsPermission();
+}
+
 class NotificationManager {
   final String name;
   final Map<String, int> notifications;
